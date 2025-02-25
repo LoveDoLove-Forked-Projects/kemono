@@ -5,7 +5,7 @@ Downloader for [kemono.su](https://kemono.su)
 ## Installation
 
 ```bash
-cargo install --git https://github.com/kawaii-hentai-dev/kemono/ --bin kemono-cli
+cargo install --git https://github.com/kemono-rs/kemono-rs/ --bin kemono-cli
 ```
 
 ## Usage
