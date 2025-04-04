@@ -30,7 +30,7 @@ pub struct DownloadInfo {
 
 /// 提取 web_name 和 user_id
 pub fn extract_info(url: &str) -> Result<DownloadInfo> {
-    let url = Url::parse(url)?;
+    let url = Url::parse(url.trim_end_matches("/"))?;
     let mut segments = url
         .path_segments()
         .ok_or_else(|| anyhow!("error: please provide an url with base"))?;

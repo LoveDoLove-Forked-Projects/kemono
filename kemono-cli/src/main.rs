@@ -1,7 +1,7 @@
 use std::{fs, io::IsTerminal, path::PathBuf, sync::atomic::Ordering};
 
 use anyhow::Result;
-use clap::Parser;
+use argh::FromArgs;
 use tracing::{error, info, level_filters::LevelFilter};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt, EnvFilter, Layer};
 
@@ -11,8 +11,8 @@ use kemono_cli::{
     DONE,
 };
 
-#[derive(Parser, Debug)]
-#[command(author, version, about = "Download tool")]
+#[derive(FromArgs, Debug)]
+#[argh(description = "Download tool")]
 struct Cli {
     /// kemono URL to fetch posts, can be user profile or single post
     ///
@@ -21,49 +21,49 @@ struct Cli {
     /// https://kemono.su/fanbox/user/4107959
     ///
     /// https://kemono.su/fanbox/user/4107959/post/7999699
+    #[argh(positional)]
     url: String,
 
-    /// Output directory of fetched posts
-    #[arg(long, default_value = "./download")]
+    /// output directory of fetched posts
+    #[argh(option, default = "PathBuf::from(\"./download\")")]
     output_dir: PathBuf,
 
-    /// Maximium number of tasks running in background concurrently
-    #[arg(long, short = 'p', default_value_t = 4)]
+    /// maximium number of tasks running in background concurrently
+    #[argh(option, short = 'p', default = "4")]
     max_concurrency: usize,
 
-    /// Whitelist regex for title
+    /// whitelist regex for title
     ///
-    /// Specify multiple times means 'AND' semantic
-    #[arg(long, short = 'w')]
+    /// specify multiple times means 'AND' semantic
+    #[argh(option, short = 'w')]
     whitelist_regex: Vec<String>,
 
-    /// Blacklist regex for title
+    /// blacklist regex for title
     ///
-    /// Specify multiple times means 'AND' semantic
-    #[arg(long, short = 'b')]
+    /// specify multiple times means 'AND' semantic
+    #[argh(option, short = 'b')]
     blacklist_regex: Vec<String>,
 
-    /// Whitelist regex for filename
+    /// whitelist regex for filename
     ///
-    /// Specify multiple times means 'AND' semantic
-    #[arg(long, short = 'W')]
+    /// specify multiple times means 'AND' semantic
+    #[argh(option, short = 'W')]
     whitelist_filename_regex: Vec<String>,
 
-    /// Blacklist regex for filename
+    /// blacklist regex for filename
     ///
-    /// Specify multiple times means 'AND' semantic
-    #[arg(long, short = 'B')]
+    /// specify multiple times means 'AND' semantic
+    #[argh(option, short = 'B')]
     blacklist_filename_regex: Vec<String>,
 
-    /// Switch to coomer.su endpoint
-    #[arg(long, default_value_t = false)]
+    /// switch to coomer.su endpoint
+    #[argh(switch)]
     coomer: bool,
 }
 
 #[tokio::main]
 async fn main() -> Result<()> {
     kdam::term::init(std::io::stderr().is_terminal());
-    kdam::term::hide_cursor()?;
 
     tracing_subscriber::registry()
         .with(
@@ -77,7 +77,7 @@ async fn main() -> Result<()> {
         )
         .init();
 
-    let cli = Cli::parse();
+    let cli = argh::from_env();
     info!("Started with arguments: {cli:?}");
     let Cli {
         url,
@@ -88,7 +88,7 @@ async fn main() -> Result<()> {
         whitelist_filename_regex,
         blacklist_filename_regex,
         coomer,
-    } = Cli::parse();
+    } = cli;
 
     info!("Download URL: {}", &url);
 

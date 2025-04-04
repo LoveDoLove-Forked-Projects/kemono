@@ -16,7 +16,7 @@ futures-lite = { version = "2.5.0", default-features = false }
 
 ctrlc = "3"
 
-clap = { version = "4", features = ["derive"] }
+argh = "0.1.13"
 derive_builder = "0.20.2"
 regex = { version = "1", default-features = false, features = ["unicode"] }
 kdam = { version = "0.6.2", features = ["rich", "spinner", "unicode"] }
