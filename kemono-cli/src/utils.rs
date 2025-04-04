@@ -23,6 +23,7 @@ use kemono_api::{
 use crate::DONE;
 
 pub struct DownloadInfo {
+    pub api_base_url: String,
     pub web_name: String,
     pub user_id: String,
     pub post_id: Option<String>,
@@ -31,6 +32,13 @@ pub struct DownloadInfo {
 /// 提取 web_name 和 user_id
 pub fn extract_info(url: &str) -> Result<DownloadInfo> {
     let url = Url::parse(url.trim_end_matches("/"))?;
+
+    let host = url
+        .host_str()
+        .ok_or_else(|| anyhow!("error: invalid URL provided!"))?;
+    let schema = url.scheme();
+    let api_base_url = format!("{schema}://{host}");
+
     let mut segments = url
         .path_segments()
         .ok_or_else(|| anyhow!("error: please provide an url with base"))?;
@@ -50,12 +58,14 @@ pub fn extract_info(url: &str) -> Result<DownloadInfo> {
         Some("post") => segments
             .next()
             .map(|post_id| DownloadInfo {
-                web_name: web_name,
-                user_id: user_id,
+                api_base_url,
+                web_name,
+                user_id,
                 post_id: Some(post_id.into()),
             })
             .ok_or_else(|| anyhow!("post_id cannot be parsed from URL")),
         None => Ok(DownloadInfo {
+            api_base_url,
             web_name,
             user_id,
             post_id: None,

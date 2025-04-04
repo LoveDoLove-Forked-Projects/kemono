@@ -32,33 +32,29 @@ struct Cli {
     #[argh(option, short = 'p', default = "4")]
     max_concurrency: usize,
 
-    /// whitelist regex for title
+    /// whitelist regex for title.
     ///
     /// specify multiple times means 'AND' semantic
     #[argh(option, short = 'w')]
     whitelist_regex: Vec<String>,
 
-    /// blacklist regex for title
+    /// blacklist regex for title.
     ///
     /// specify multiple times means 'AND' semantic
     #[argh(option, short = 'b')]
     blacklist_regex: Vec<String>,
 
-    /// whitelist regex for filename
+    /// whitelist regex for filename.
     ///
     /// specify multiple times means 'AND' semantic
     #[argh(option, short = 'W')]
     whitelist_filename_regex: Vec<String>,
 
-    /// blacklist regex for filename
+    /// blacklist regex for filename.
     ///
     /// specify multiple times means 'AND' semantic
     #[argh(option, short = 'B')]
     blacklist_filename_regex: Vec<String>,
-
-    /// switch to coomer.su endpoint
-    #[argh(switch)]
-    coomer: bool,
 }
 
 #[tokio::main]
@@ -87,7 +83,6 @@ async fn main() -> Result<()> {
         blacklist_regex,
         whitelist_filename_regex,
         blacklist_filename_regex,
-        coomer,
     } = cli;
 
     info!("Download URL: {}", &url);
@@ -105,6 +100,7 @@ async fn main() -> Result<()> {
     })?;
 
     let DownloadInfo {
+        api_base_url,
         web_name,
         user_id,
         post_id,
@@ -119,14 +115,7 @@ async fn main() -> Result<()> {
         .blacklist_regexes(blacklist_regex)
         .whitelist_filename_regexes(whitelist_filename_regex)
         .blacklist_filename_regexes(blacklist_filename_regex)
-        .api_base_url(
-            if coomer {
-                "https://coomer.su"
-            } else {
-                "https://kemono.su"
-            }
-            .into(),
-        )
+        .api_base_url(api_base_url)
         .build()?;
 
     match post_id {
