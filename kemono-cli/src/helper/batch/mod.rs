@@ -22,7 +22,7 @@ pub async fn download_all(ctx: impl ctx::Context<'_>) -> Result<()> {
     let mut offset = 0;
 
     loop {
-        if DONE.load(Ordering::Relaxed) {
+        if DONE.load(Ordering::Acquire) {
             break;
         }
 
@@ -44,7 +44,7 @@ pub async fn download_all(ctx: impl ctx::Context<'_>) -> Result<()> {
             title: ref post_title,
         } in results
         {
-            if DONE.load(Ordering::Relaxed) {
+            if DONE.load(Ordering::Acquire) {
                 error!("Received SIGINT, exiting");
                 break;
             }

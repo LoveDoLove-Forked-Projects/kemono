@@ -42,6 +42,8 @@ pub(crate) async fn download_post(
     let whitelist_filename_regex = RegexSet::new(whitelist_filename_regex)?;
     let blacklist_filename_regex = RegexSet::new(blacklist_filename_regex)?;
 
+    let start_date = ctx.start_date();
+
     if !whiteblack_regex_filter(&whitelist_regex, &blacklist_regex, post_title) {
         info!("Skipped {post_title} by filter");
         return Ok(());
@@ -57,6 +59,13 @@ pub(crate) async fn download_post(
         .map_err(|e| anyhow!("failed to get post info: {e}"))?;
 
     trace!("metadata: {metadata:?}");
+
+    if let Ok(time) = chrono::DateTime::parse_from_rfc3339(&metadata.published) {
+        if start_date.is_some_and(|start| start > time.date_naive()) {
+            DONE.store(true, Ordering::Release);
+            return Ok(());
+        }
+    }
 
     let post_dir = normalize_pathname(post_title);
     let save_path = output_dir.join(&author).join(post_dir.as_str());
@@ -103,7 +112,7 @@ pub(super) async fn download_post_attachments(
 
     let semaphore = Arc::new(Semaphore::new(max_concurrency));
 
-    if DONE.load(Ordering::Relaxed) {
+    if DONE.load(Ordering::Acquire) {
         return Ok(());
     }
 
@@ -136,7 +145,7 @@ pub(super) async fn download_post_attachments(
         file_path,
     } in attachments
     {
-        if DONE.load(Ordering::Relaxed) {
+        if DONE.load(Ordering::Acquire) {
             tasks.join_all().await;
             anyhow::bail!("Received SIGINT, exiting!");
         }
@@ -167,7 +176,7 @@ pub(super) async fn download_post_attachments(
     }
     tasks.join_all().await;
 
-    if DONE.load(Ordering::Relaxed) {
+    if DONE.load(Ordering::Acquire) {
         anyhow::bail!("Received SIGINT, exiting!");
     }
 

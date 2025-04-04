@@ -106,7 +106,7 @@ pub async fn download_file(
     file_name: &str,
     position: &AtomicU16,
 ) -> Result<()> {
-    if DONE.load(Ordering::Relaxed) {
+    if DONE.load(Ordering::Acquire) {
         return Ok(());
     }
     let save_path = save_dir.join(file_name);
@@ -192,7 +192,7 @@ pub async fn download_file(
     while let Some(item) = timeout(Duration::from_secs(10), stream.next()).await? {
         let data = item?;
 
-        if DONE.load(Ordering::Relaxed) {
+        if DONE.load(Ordering::Acquire) {
             writer.flush().await?;
             return Ok(());
         }

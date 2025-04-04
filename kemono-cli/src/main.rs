@@ -55,6 +55,10 @@ struct Cli {
     /// specify multiple times means 'AND' semantic
     #[argh(option, short = 'B')]
     blacklist_filename_regex: Vec<String>,
+
+    /// only fetch videos since this date. format like: 2025-01-01
+    #[argh(option)]
+    start_date: Option<String>,
 }
 
 #[tokio::main]
@@ -83,6 +87,7 @@ async fn main() -> Result<()> {
         blacklist_regex,
         whitelist_filename_regex,
         blacklist_filename_regex,
+        start_date,
     } = cli;
 
     info!("Download URL: {}", &url);
@@ -116,6 +121,9 @@ async fn main() -> Result<()> {
         .whitelist_filename_regexes(whitelist_filename_regex)
         .blacklist_filename_regexes(blacklist_filename_regex)
         .api_base_url(api_base_url)
+        .start_date(
+            start_date.and_then(|date| chrono::NaiveDate::parse_from_str(&date, "%Y-%m-%d").ok()),
+        )
         .build()?;
 
     match post_id {

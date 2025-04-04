@@ -1,5 +1,6 @@
 use std::path::PathBuf;
 
+use chrono::NaiveDate;
 use derive_builder::Builder;
 
 pub trait Context<'a> {
@@ -15,6 +16,7 @@ pub trait Context<'a> {
     ///
     /// Example: https://kemono.su, https://coomer.su
     fn api_base_url(&self) -> &'a str;
+    fn start_date(&self) -> Option<NaiveDate>;
 }
 
 #[derive(Clone, Builder, PartialEq, Eq, Default)]
@@ -33,6 +35,8 @@ pub struct Args {
     blacklist_filename_regexes: Vec<String>,
     #[builder(default = "String::from(\"https://kemono.su\")")]
     api_base_url: String,
+    #[builder(default = "None")]
+    start_date: Option<chrono::NaiveDate>,
 }
 
 impl Args {
@@ -76,5 +80,9 @@ impl<'a> Context<'a> for &'a Args {
 
     fn api_base_url(&self) -> &'a str {
         &self.api_base_url
+    }
+
+    fn start_date(&self) -> Option<NaiveDate> {
+        self.start_date.clone()
     }
 }
