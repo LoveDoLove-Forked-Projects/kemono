@@ -126,6 +126,8 @@ async fn main() -> Result<()> {
         )
         .build()?;
 
+    info!("args: {args:#?}");
+
     match post_id {
         Some(post_id) => {
             if let Err(e) = download_one(&args, &post_id).await {

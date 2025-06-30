@@ -19,7 +19,7 @@ pub trait Context<'a> {
     fn start_date(&self) -> Option<NaiveDate>;
 }
 
-#[derive(Clone, Builder, PartialEq, Eq, Default)]
+#[derive(Debug, Clone, Builder, PartialEq, Eq, Default)]
 pub struct Args {
     web_name: String,
     user_id: String,
