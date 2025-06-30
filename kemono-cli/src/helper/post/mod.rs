@@ -45,7 +45,7 @@ pub(crate) async fn download_post(
     let start_date = ctx.start_date();
 
     if !whiteblack_regex_filter(&whitelist_regex, &blacklist_regex, post_title) {
-        info!("Skipped {post_title} by filter");
+        debug!("Skipped {post_title} by filter");
         return Ok(());
     }
 
