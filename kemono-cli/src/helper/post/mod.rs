@@ -60,11 +60,16 @@ pub(crate) async fn download_post(
 
     trace!("metadata: {metadata:?}");
 
-    if let Ok(time) = chrono::DateTime::parse_from_rfc3339(&metadata.published) {
+    if let Ok(time) =
+        chrono::DateTime::parse_from_rfc3339((metadata.published.to_string() + "Z").as_str())
+    {
+        info!("set DONE due to start-date!");
         if start_date.is_some_and(|start| start > time.date_naive()) {
             DONE.store(true, Ordering::Release);
             return Ok(());
         }
+    } else {
+        error!("failed to parse datetime!");
     }
 
     let post_dir = normalize_pathname(post_title);

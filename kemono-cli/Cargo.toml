@@ -28,4 +28,4 @@ tracing-subscriber = { version = "0.3.18", features = [
 ] }
 
 kemono-api = { path = "../kemono-api" }
-chrono = "0.4.40"
+chrono = "0.4.41"
