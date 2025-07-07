@@ -25,7 +25,7 @@ pub struct Post {
     pub content: String,
     pub embed: Embed,
     pub shared_file: bool,
-    pub added: String,
+    pub added: Option<String>,
     pub published: String,
     pub edited: Option<String>,
     pub file: File,
