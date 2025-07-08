@@ -34,13 +34,17 @@ pub(crate) async fn download_post(
 
     let whitelist_regex = ctx.whitelist_regexes();
     let blacklist_regex = ctx.blacklist_regexes();
-    let whitelist_regex = RegexSet::new(whitelist_regex)?;
-    let blacklist_regex = RegexSet::new(blacklist_regex)?;
+    let whitelist_regex = RegexSet::new(whitelist_regex)
+        .map_err(|_| anyhow!("failed to parse whitelist regex for title"))?;
+    let blacklist_regex = RegexSet::new(blacklist_regex)
+        .map_err(|_| anyhow!("failed to parse blacklist regex for title"))?;
 
     let whitelist_filename_regex = ctx.whitelist_filename_regexes();
     let blacklist_filename_regex = ctx.blacklist_filename_regexes();
-    let whitelist_filename_regex = RegexSet::new(whitelist_filename_regex)?;
-    let blacklist_filename_regex = RegexSet::new(blacklist_filename_regex)?;
+    let whitelist_filename_regex = RegexSet::new(whitelist_filename_regex)
+        .map_err(|_| anyhow!("failed to parse whitelist regex for filename"))?;
+    let blacklist_filename_regex = RegexSet::new(blacklist_filename_regex)
+        .map_err(|_| anyhow!("failed to parse blacklist regex for filename"))?;
 
     let start_date = ctx.start_date();
 

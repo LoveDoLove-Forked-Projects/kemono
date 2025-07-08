@@ -23,13 +23,12 @@ derive_builder = "0.20.2"
 regex = { version = "1", default-features = false, features = ["unicode"] }
 kdam = { version = "0.6.2", features = ["rich", "spinner", "unicode"] }
 
-tracing = "0.1.40"
-tracing-subscriber = { version = "0.3.18", features = [
-    "registry",
-    "env-filter",
-] }
-
 kemono-api = { path = "../kemono-api" }
 chrono = "0.4.41"
 futures-util = { version = "0.3.31", features = ["io"] }
 nyquest-preset = { version = "0.2.0", features = ["async"] }
+tracing-subscriber = { git = "https://github.com/tokio-rs/tracing/", version = "0.3.19", features = [
+    "env-filter",
+    "registry",
+], rev = "e63ef57f3d68" }
+tracing = { git = "https://github.com/tokio-rs/tracing/", version = "0.1.41", rev = "e63ef57f3d68" }
