@@ -4,5 +4,5 @@ pub mod model;
 
 pub use inner::API;
 
-pub use reqwest;
+pub use http;
 pub use serde_json;

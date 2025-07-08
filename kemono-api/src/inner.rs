@@ -31,7 +31,7 @@ impl API {
         let resp = self
             .client
             .head(url)
-            .header(reqwest::header::REFERER, base_url.as_str())
+            .header(http::header::REFERER, base_url.as_str())
             .send()
             .await?;
         Ok(resp)
@@ -42,8 +42,8 @@ impl API {
         let resp = self
             .client
             .get(url)
-            .header(reqwest::header::REFERER, base_url.as_str())
-            .header(reqwest::header::RANGE, format!("bytes={start_pos}-"))
+            .header(http::header::REFERER, base_url.as_str())
+            .header(http::header::RANGE, format!("bytes={start_pos}-"))
             .send()
             .await?;
         Ok(resp)
@@ -58,7 +58,7 @@ impl API {
         let base_url = &self.base_url;
         let url = format!("{base_url}/api/v1/{web_name}/user/{user_id}/posts-legacy",);
         let mut req = self.client.get(&url).header(
-            reqwest::header::REFERER,
+            http::header::REFERER,
             format!("{base_url}/{web_name}/user/{user_id}"),
         );
 
@@ -87,7 +87,7 @@ impl API {
             .client
             .get(&url)
             .header(
-                reqwest::header::REFERER,
+                http::header::REFERER,
                 format!("{base_url}/{web_name}/user/{user_id}/post/{post_id}"),
             )
             .send()
@@ -104,7 +104,7 @@ impl API {
         let base_url = &self.base_url;
         let url = format!("{base_url}/api/v1/{web_name}/user/{user_id}/profile",);
         let req = self.client.get(&url).header(
-            reqwest::header::REFERER,
+            http::header::REFERER,
             format!("{base_url}/{web_name}/user/{user_id}"),
         );
 

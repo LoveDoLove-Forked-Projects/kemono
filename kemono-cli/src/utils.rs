@@ -14,11 +14,9 @@ use tokio::{
     time::timeout,
 };
 use tracing::{info, warn};
+use url::Url;
 
-use kemono_api::{
-    reqwest::{self, Url},
-    API,
-};
+use kemono_api::{http, API};
 
 use crate::DONE;
 
@@ -121,7 +119,7 @@ pub async fn download_file(
     }
     let total_size = head_resp
         .headers()
-        .get(reqwest::header::CONTENT_LENGTH)
+        .get(http::header::CONTENT_LENGTH)
         .and_then(|v| v.to_str().ok())
         .and_then(|s| s.parse::<u64>().ok())
         .unwrap_or(0);
