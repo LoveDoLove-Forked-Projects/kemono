@@ -1,5 +1,5 @@
 use anyhow::Result;
-use nyquest::{r#async::Request, AsyncClient, ClientBuilder};
+use nyquest::{r#async::Request, AsyncClient, ClientBuilder, Method};
 use url::Url;
 
 use crate::model::{post_info::PostInfo, posts_legacy::PostsLegacy, user_profile::UserProfile};
@@ -31,8 +31,7 @@ impl API {
     }
 
     pub async fn head(&self, url: &str) -> Result<nyquest::r#async::Response> {
-        // ugly workaround b.c. nyquest does not provide HEAD method
-        let req = nyquest::Request::get(url.to_string());
+        let req = nyquest::Request::new(Method::custom("HEAD"), url.to_string());
         let resp = self.client.request(req).await?;
         Ok(resp)
     }
