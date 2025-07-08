@@ -187,7 +187,13 @@ pub async fn download_file(
     let mut stream = resp.into_async_read();
     let mut buf = vec![0u8; 2 * 1024 * 1024];
 
-    while let Ok(len) = timeout(Duration::from_secs(10), stream.read(&mut buf)).await? {
+    loop {
+        let len = timeout(Duration::from_secs(10), stream.read(&mut buf)).await??;
+
+        if len == 0 {
+            break;
+        }
+
         let data = &buf[..len];
 
         writer.write_all(&data).await?;

@@ -32,8 +32,7 @@ impl API {
 
     pub async fn head(&self, url: &str) -> Result<nyquest::r#async::Response> {
         // ugly workaround b.c. nyquest does not provide HEAD method
-        let req = nyquest::Request::get(url.to_string())
-            .with_header(http::header::RANGE.as_str(), "bytes=0-8");
+        let req = nyquest::Request::get(url.to_string());
         let resp = self.client.request(req).await?;
         Ok(resp)
     }
