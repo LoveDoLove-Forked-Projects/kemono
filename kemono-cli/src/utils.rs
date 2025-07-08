@@ -185,18 +185,18 @@ pub async fn download_file(
 
     let mut writer = BufWriter::with_capacity(10 * 1024 * 1024, file);
     let mut stream = resp.into_async_read();
-    let mut buf = [0u8; 512 * 1024];
+    let mut buf = vec![0u8; 2 * 1024 * 1024];
 
     while let Ok(len) = timeout(Duration::from_secs(10), stream.read(&mut buf)).await? {
         let data = &buf[..len];
+
+        writer.write_all(&data).await?;
+        pb.update(data.len())?;
 
         if DONE.load(Ordering::Acquire) {
             writer.flush().await?;
             return Ok(());
         }
-
-        writer.write_all(&data).await?;
-        pb.update(data.len())?;
     }
     writer.flush().await?;
     drop(writer);
