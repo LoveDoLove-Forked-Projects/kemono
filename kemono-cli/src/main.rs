@@ -64,6 +64,7 @@ struct Cli {
 #[tokio::main]
 async fn main() -> Result<()> {
     kdam::term::init(std::io::stderr().is_terminal());
+    nyquest_preset::register();
 
     tracing_subscriber::registry()
         .with(

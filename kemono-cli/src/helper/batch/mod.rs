@@ -18,7 +18,7 @@ pub async fn download_all(ctx: impl ctx::Context<'_>) -> Result<()> {
     let user_id = ctx.user_id();
     let base_url = ctx.api_base_url();
 
-    let api = API::try_with_base_url(base_url)?;
+    let api = API::try_with_base_url(base_url).await?;
     let mut offset = 0;
 
     loop {

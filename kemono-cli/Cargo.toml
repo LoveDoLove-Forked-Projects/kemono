@@ -11,8 +11,10 @@ tokio = { version = "1", features = [
     "macros",
     "rt-multi-thread",
     "io-util",
+    "fs",
+    "time",
+    "sync",
 ], default-features = false }
-futures-lite = { version = "2.5.0", default-features = false }
 
 ctrlc = "3"
 
@@ -29,4 +31,5 @@ tracing-subscriber = { version = "0.3.18", features = [
 
 kemono-api = { path = "../kemono-api" }
 chrono = "0.4.41"
-url = "2.5.4"
+futures-util = { version = "0.3.31", features = ["io"] }
+nyquest-preset = { version = "0.2.0", features = ["async"] }

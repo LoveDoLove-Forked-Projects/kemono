@@ -13,7 +13,7 @@ pub async fn download_one(ctx: impl Context<'_>, post_id: &str) -> Result<()> {
     let user_id = ctx.user_id();
     let base_url = ctx.api_base_url();
 
-    let api = API::try_with_base_url(base_url)?;
+    let api = API::try_with_base_url(base_url).await?;
 
     let author = get_author_name(&api, web_name, user_id).await?;
     let PostInfo {

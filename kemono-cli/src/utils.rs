@@ -5,7 +5,7 @@ use std::{
 };
 
 use anyhow::{anyhow, Result};
-use futures_lite::StreamExt;
+use futures_util::AsyncReadExt;
 use kdam::{tqdm, BarExt, Column, RichProgress, Spinner};
 use regex::RegexSet;
 use tokio::{
@@ -14,9 +14,8 @@ use tokio::{
     time::timeout,
 };
 use tracing::{info, warn};
-use url::Url;
 
-use kemono_api::{http, API};
+use kemono_api::{http, url::Url, API};
 
 use crate::DONE;
 
@@ -110,7 +109,7 @@ pub async fn download_file(
     let save_path = save_dir.join(file_name);
 
     let head_resp = api.head(url).await?;
-    if !head_resp.status().is_success() {
+    if !head_resp.status().is_successful() {
         anyhow::bail!(
             "failed to download {} status_code {:?}",
             url,
@@ -118,9 +117,9 @@ pub async fn download_file(
         );
     }
     let total_size = head_resp
-        .headers()
-        .get(http::header::CONTENT_LENGTH)
-        .and_then(|v| v.to_str().ok())
+        .get_header(http::header::CONTENT_LENGTH.as_str())
+        .ok()
+        .and_then(|mut v| v.pop())
         .and_then(|s| s.parse::<u64>().ok())
         .unwrap_or(0);
 
@@ -180,15 +179,16 @@ pub async fn download_file(
     );
 
     let resp = api.get_stream(url, start_pos).await?;
-    if !resp.status().is_success() {
-        anyhow::bail!("failed to download {} status_code {:?}", url, resp.status());
+    if !resp.status().is_successful() {
+        anyhow::bail!("failed to download {url}, status_code {:?}", resp.status());
     }
 
     let mut writer = BufWriter::with_capacity(10 * 1024 * 1024, file);
-    let mut stream = resp.bytes_stream();
+    let mut stream = resp.into_async_read();
+    let mut buf = [0u8; 512 * 1024];
 
-    while let Some(item) = timeout(Duration::from_secs(10), stream.next()).await? {
-        let data = item?;
+    while let Ok(len) = timeout(Duration::from_secs(10), stream.read(&mut buf)).await? {
+        let data = &buf[..len];
 
         if DONE.load(Ordering::Acquire) {
             writer.flush().await?;
