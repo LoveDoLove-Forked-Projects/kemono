@@ -188,7 +188,14 @@ pub async fn download_file(
     let mut buf = vec![0u8; 2 * 1024 * 1024];
 
     loop {
-        let len = timeout(Duration::from_secs(10), stream.read(&mut buf)).await??;
+        let result = timeout(Duration::from_secs(10), stream.read(&mut buf)).await?;
+        let len = match result {
+            Ok(len) => len,
+            Err(e) => {
+                writer.flush().await?;
+                return Err(e)?;
+            }
+        };
 
         if len == 0 {
             break;
