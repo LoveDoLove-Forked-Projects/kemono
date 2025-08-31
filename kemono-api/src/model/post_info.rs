@@ -4,7 +4,7 @@ use serde::Serialize;
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct PostInfo {
-    pub post: Post,
+    pub post: PostInfoPost,
     pub attachments: Vec<AttachmentLike>,
     pub previews: Vec<AttachmentLike>,
 }
@@ -17,7 +17,7 @@ pub struct AttachmentLike {
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct Post {
+pub struct PostInfoPost {
     pub id: String,
     pub user: String,
     pub service: String,

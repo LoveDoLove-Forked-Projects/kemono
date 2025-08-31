@@ -2,7 +2,7 @@ use std::sync::atomic::Ordering;
 
 use anyhow::{anyhow, Result};
 
-use kemono_api::model::posts_legacy::{PostsLegacy, Props, Result as PLResult};
+use kemono_api::model::posts::Post;
 use kemono_api::API;
 use tracing::{debug, error};
 
@@ -26,23 +26,25 @@ pub async fn download_all(ctx: impl ctx::Context<'_>) -> Result<()> {
             break;
         }
 
-        let PostsLegacy {
-            props: Props { count, limit },
-            results,
-        } = api
-            .get_posts_legacy(web_name, user_id, offset)
+        let posts = api
+            .get_posts(web_name, user_id, offset)
             .await
             .map_err(|e| anyhow!("failed to fetch props: {e}"))?;
 
-        debug!("count: {count}, limit: {limit}");
+        let length = posts.len();
+        if length == 0 {
+            break;
+        }
+        debug!("fetched {length} posts");
 
         let author = get_author_name(&api, web_name, user_id).await?;
         let author = normalize_pathname(&author);
 
-        for PLResult {
+        for Post {
             id: ref post_id,
             title: ref post_title,
-        } in results
+            ..
+        } in posts
         {
             if DONE.load(Ordering::Acquire) {
                 error!("Received SIGINT, exiting");
@@ -51,10 +53,7 @@ pub async fn download_all(ctx: impl ctx::Context<'_>) -> Result<()> {
             post::download_post(&ctx, &api, &post_id, &post_title, &author).await?;
         }
 
-        offset += limit;
-        if offset > count {
-            break;
-        }
+        offset += length;
     }
 
     Ok(())

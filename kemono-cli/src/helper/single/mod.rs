@@ -1,6 +1,6 @@
 use anyhow::Result;
 use kemono_api::{
-    model::post_info::{Post, PostInfo},
+    model::post_info::{PostInfo, PostInfoPost},
     API,
 };
 
@@ -17,7 +17,7 @@ pub async fn download_one(ctx: impl Context<'_>, post_id: &str) -> Result<()> {
 
     let author = get_author_name(&api, web_name, user_id).await?;
     let PostInfo {
-        post: Post {
+        post: PostInfoPost {
             title: post_title, ..
         },
         ..

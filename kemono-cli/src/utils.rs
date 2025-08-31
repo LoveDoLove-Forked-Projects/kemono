@@ -187,13 +187,37 @@ pub async fn download_file(
     let mut stream = resp.into_async_read();
     let mut buf = vec![0u8; 2 * 1024 * 1024];
 
+    let mut retry_count = 0;
     loop {
-        let result = timeout(Duration::from_secs(10), stream.read(&mut buf)).await?;
+        let result = timeout(
+            Duration::from_secs(2_u64.pow(retry_count)),
+            stream.read(&mut buf),
+        )
+        .await;
         let len = match result {
-            Ok(len) => len,
+            Ok(Ok(len)) => len,
+            // request error
+            Ok(Err(e)) => {
+                writer.flush().await?;
+
+                retry_count += 1;
+
+                if retry_count < 10 {
+                    continue;
+                } else {
+                    return Err(e)?;
+                }
+            }
+            // request timeout
             Err(e) => {
                 writer.flush().await?;
-                return Err(e)?;
+
+                retry_count += 1;
+                if retry_count < 10 {
+                    continue;
+                } else {
+                    return Err(e)?;
+                }
             }
         };
 

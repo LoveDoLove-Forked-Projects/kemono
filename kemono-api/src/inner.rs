@@ -1,8 +1,10 @@
+use std::time::Duration;
+
 use anyhow::Result;
 use nyquest::{r#async::Request, AsyncClient, ClientBuilder, Method};
 use url::Url;
 
-use crate::model::{post_info::PostInfo, posts_legacy::PostsLegacy, user_profile::UserProfile};
+use crate::model::{post_info::PostInfo, posts::Post, user_profile::UserProfile};
 
 #[derive(Clone, Debug)]
 pub struct API {
@@ -14,7 +16,7 @@ const USER_AGENT: &str = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/
 
 impl API {
     pub async fn try_new() -> Result<Self> {
-        Self::try_with_base_url("https://kemono.su").await
+        Self::try_with_base_url("https://kemono.cr").await
     }
 
     pub async fn try_with_base_url(base_url: impl AsRef<str>) -> Result<Self> {
@@ -23,7 +25,9 @@ impl API {
             client: ClientBuilder::default()
                 .base_url(base_url.as_ref())
                 .user_agent(USER_AGENT)
+                .with_header(http::header::ACCEPT.as_str(), "text/css")
                 .with_header(http::header::REFERER.as_str(), base_url.as_ref())
+                .request_timeout(Duration::from_secs(60 * 60 * 24))
                 .build_async()
                 .await?,
             base_url,
@@ -46,13 +50,13 @@ impl API {
         Ok(self.client.request(req).await?)
     }
 
-    pub async fn get_posts_legacy(
+    pub async fn get_posts(
         &self,
         web_name: &str,
         user_id: &str,
         offset: usize,
-    ) -> Result<PostsLegacy> {
-        let url = format!("/api/v1/{web_name}/user/{user_id}/posts-legacy?o={offset}",);
+    ) -> Result<Vec<Post>> {
+        let url = format!("/api/v1/{web_name}/user/{user_id}/posts?o={offset}",);
         let req = nyquest::Request::get(url.to_string());
 
         let resp = self.client.request(req).await?;
