@@ -27,7 +27,7 @@ impl API {
                 .user_agent(USER_AGENT)
                 .with_header(http::header::ACCEPT.as_str(), "text/css")
                 .with_header(http::header::REFERER.as_str(), base_url.as_ref())
-                .request_timeout(Duration::from_secs(60 * 60 * 24))
+                .request_timeout(Duration::from_secs(10))
                 .build_async()
                 .await?,
             base_url,

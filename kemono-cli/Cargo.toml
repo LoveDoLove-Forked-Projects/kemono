@@ -12,7 +12,6 @@ tokio = { version = "1", features = [
     "rt-multi-thread",
     "io-util",
     "fs",
-    "time",
     "sync",
 ], default-features = false }
 

@@ -1,7 +1,6 @@
 use std::{
     path::{Path, PathBuf},
     sync::atomic::{AtomicU16, Ordering},
-    time::Duration,
 };
 
 use anyhow::{anyhow, Result};
@@ -11,7 +10,6 @@ use regex::RegexSet;
 use tokio::{
     fs::{self, File},
     io::{AsyncWriteExt, BufWriter},
-    time::timeout,
 };
 use tracing::{info, warn};
 
@@ -189,25 +187,9 @@ pub async fn download_file(
 
     let mut retry_count = 0;
     loop {
-        let result = timeout(
-            Duration::from_secs(2_u64.pow(retry_count)),
-            stream.read(&mut buf),
-        )
-        .await;
+        let result = stream.read(&mut buf).await;
         let len = match result {
-            Ok(Ok(len)) => len,
-            // request error
-            Ok(Err(e)) => {
-                writer.flush().await?;
-
-                retry_count += 1;
-
-                if retry_count < 10 {
-                    continue;
-                } else {
-                    return Err(e)?;
-                }
-            }
+            Ok(len) => len,
             // request timeout
             Err(e) => {
                 writer.flush().await?;
