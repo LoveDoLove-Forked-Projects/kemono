@@ -65,6 +65,12 @@ jobs:
         with:
           prefix-key: ${{ matrix.target }}
           shared-key: "main"
+      - name: Install OpenSSL
+        if: ${{ matrix.os }} == "ubuntu-latest"
+        shell: bash
+        run: |
+          sudo apt-get update
+          sudo apt-get install libssl-dev
       - name: Build binary
         uses: houseabsolute/actions-rust-cross@v0
         with:
