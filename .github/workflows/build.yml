@@ -46,10 +46,10 @@ jobs:
           - target: aarch64-apple-darwin
             os: macos-latest
             suffix: ""
-          - target: x86_64-unknown-linux-musl
+          - target: x86_64-unknown-linux-gnu
             os: ubuntu-latest
             suffix: ""
-          - target: aarch64-unknown-linux-musl
+          - target: aarch64-unknown-linux-gnu
             os: ubuntu-latest
             suffix: ""
           - target: x86_64-pc-windows-msvc
@@ -65,12 +65,11 @@ jobs:
         with:
           prefix-key: ${{ matrix.target }}
           shared-key: "main"
-      - name: Install OpenSSL
+      - name: Enable `openssl-sys/vendored`
         if: matrix.os == 'ubuntu-latest'
         shell: bash
         run: |
-          sudo apt-get update
-          sudo apt-get install libssl-dev
+          cargo add openssl-sys -F vendored --package kemono-cli
       - name: Build binary
         uses: houseabsolute/actions-rust-cross@v0
         with:
