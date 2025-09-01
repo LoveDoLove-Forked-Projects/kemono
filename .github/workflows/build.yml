@@ -46,12 +46,20 @@ jobs:
           - target: aarch64-apple-darwin
             os: macos-latest
             suffix: ""
+
           - target: x86_64-unknown-linux-gnu
             os: ubuntu-latest
             suffix: ""
           - target: aarch64-unknown-linux-gnu
             os: ubuntu-latest
             suffix: ""
+          - target: x86_64-unknown-linux-musl
+            os: ubuntu-latest
+            suffix: ""
+          - target: aarch64-unknown-linux-musl
+            os: ubuntu-latest
+            suffix: ""
+
           - target: x86_64-pc-windows-msvc
             os: windows-latest
             suffix: .exe
@@ -66,7 +74,7 @@ jobs:
           prefix-key: ${{ matrix.target }}
           shared-key: "main"
       - name: Enable `openssl-sys/vendored`
-        if: matrix.os == 'ubuntu-latest'
+        if: endsWith(matrix.target, 'musl')
         shell: bash
         run: |
           cargo add openssl-sys -F vendored --package kemono-cli
