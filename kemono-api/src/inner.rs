@@ -1,7 +1,7 @@
 use std::time::Duration;
 
 use anyhow::Result;
-use nyquest::{r#async::Request, AsyncClient, ClientBuilder, Method};
+use nyquest::{r#async::Request, AsyncClient, ClientBuilder};
 use url::Url;
 
 use crate::model::{post_info::PostInfo, posts::Post, user_profile::UserProfile};
@@ -35,7 +35,7 @@ impl API {
     }
 
     pub async fn head(&self, url: &str) -> Result<nyquest::r#async::Response> {
-        let req = nyquest::Request::new(Method::custom("HEAD"), url.to_string());
+        let req = nyquest::Request::head(url.to_string());
         let resp = self.client.request(req).await?;
         Ok(resp)
     }
